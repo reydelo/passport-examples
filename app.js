@@ -48,6 +48,7 @@ mongoose.connect(mongo);
 
 // mongo model
 // var Model_Name = require('add_your_models_here');
+
 // config
 passport.use(new FacebookStrategy({
  clientID: config.facebook.clientID,
@@ -56,6 +57,17 @@ passport.use(new FacebookStrategy({
 },
 function(accessToken, refreshToken, profile, done) {
  process.nextTick(function () {
+   return done(null, profile);
+ });
+}
+));
+passport.use(new GoogleStrategy({
+ returnURL: config.google.returnURL,
+ realm: config.google.realm
+},
+function(identifier, profile, done) {
+ process.nextTick(function () {
+   profile.identifier = identifier;
    return done(null, profile);
  });
 }
@@ -94,6 +106,15 @@ function(req, res){
 });
 app.get('/auth/facebook/callback',
 passport.authenticate('facebook', { failureRedirect: '/' }),
+function(req, res) {
+ res.redirect('/account');
+});
+app.get('/auth/google',
+passport.authenticate('google'),
+function(req, res){
+});
+app.get('/auth/google/callback',
+passport.authenticate('google', { failureRedirect: '/' }),
 function(req, res) {
  res.redirect('/account');
 });
